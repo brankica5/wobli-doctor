@@ -124,7 +124,7 @@ class DefinedNeverCalled(Rule):
     title = "A method nobody calls"
     born_from = """
     parentWake() was written as the way a parent lets a sleeping Wobli up from
-    behind the gate, and was described to Branka as exactly that. Nothing
+    behind the gate, and was described in review as exactly that. Nothing
     anywhere called it: there was no way back up except killing the app, which
     also reset the clock, so the bedtime limit undid itself.
     """

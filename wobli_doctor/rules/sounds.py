@@ -62,8 +62,8 @@ class SwallowedByCutList(Rule):
     name = "swallowed-by-cuts"
     title = "A clip on the cut list is still called directly, so it plays nothing"
     born_from = """
-    Branka crossed wob_giggle off her list weeks ago. voiceAny filters the cut
-    list BEFORE it picks, so groups merely listing that clip quietly choose
+    wob_giggle was crossed off the project's cut list weeks earlier. voiceAny
+    filters that list BEFORE it picks, so groups merely listing the clip chose
     another - that half worked. But eleven places called sfx('wob_giggle')
     directly, sfx checks the cut list and returns, and those eleven laughs had
     been SILENT ever since. Not repetitive: absent.
@@ -100,10 +100,10 @@ class UnreachableClip(Rule):
     name = "unreachable-clip"
     title = "An audio file no code can name"
     born_from = """
-    Reported as a note and never as something to delete, on purpose. An audit
-    of mine matched literal strings only, called note_1..7 and lick_1..3
+    Reported as a note and never as something to delete, on purpose. An
+    earlier audit matched literal strings only, called note_1..7 and lick_1..3
     unused, and deleted them - the pentatonic scale the game plays constantly.
-    Woblero builds clip names at the moment of use, so this rule treats an
+    The game builds clip names at the moment of use, so this rule treats an
     interpolated name as a PREFIX FAMILY and counts every file under it as
     reachable. It still cannot see a name assembled from a variable it never
     sees, which is exactly why it only ever reports.
