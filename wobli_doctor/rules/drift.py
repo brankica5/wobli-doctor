@@ -90,7 +90,12 @@ class CommentDescribesNothing(Rule):
     """
 
     #: Names a comment mentions in backticks or [brackets] should exist.
-    REF = re.compile(r"///.*?[\[`](_?[a-zA-Z]\w{3,})[\]`]")
+    #
+    # Dart identifiers are camelCase or _private; they are never snake_case.
+    # Without that, a TODO naming a PACKAGE - `in_app_purchase` - was read as
+    # a vanished identifier and reported as a ghost. A rule that cannot tell
+    # a package from a variable will keep finding them.
+    REF = re.compile(r"///.*?[\[`](_?[a-z][A-Za-z0-9]{3,})[\]`]")
 
     def run(self, project: Project):
         for path, text in project.dart.items():
@@ -101,6 +106,11 @@ class CommentDescribesNothing(Rule):
                 hits = len(re.findall(
                     r"(?<![\w.])" + re.escape(name) + r"(?![\w])",
                     project.code_only()))
+                # also reached as a member (canvas.drawOval) or named in
+                # pubspec as a package - both are real, neither is a ghost
+                hits += len(re.findall(
+                    r"\." + re.escape(name) + r"(?![\w])", project.code_only()))
+                hits += project.pubspec.count(name)
                 if hits == 0:
                     yield self.finding(
                         Level.RISK,

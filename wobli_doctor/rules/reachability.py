@@ -94,8 +94,11 @@ class ReadButNeverWritten(Rule):
     SKIP = {"_rng", "_random"}
 
     def run(self, project: Project):
+        # `late final x = ...` is assigned AT its declaration and is correct
+        # Dart; flagging it told a clean field it was broken. Only a plain
+        # mutable declaration can be the fault this rule looks for.
         decl = re.compile(
-            r"^\s{2}(?:late\s+)?(?:final\s+)?(?:bool|int|double|String)\s+"
+            r"^\s{2}(?!late)(?!final)(?:bool|int|double|String)\s+"
             r"(_\w+)\s*=\s*([^;]+);", re.M)
         for path, text in project.dart.items():
             for m in decl.finditer(text):
@@ -103,7 +106,11 @@ class ReadButNeverWritten(Rule):
                 if name in self.SKIP or len(name) < 4:
                     continue
                 writes = len(re.findall(
-                    r"(?<![\w.])" + re.escape(name) +
+                    # postfix AND prefix: ++_mealN is an assignment too, and
+                    # missing it reported a counter that increments on every
+                    # meal as a field nothing ever sets
+                    r"(?:\+\+|--)\s*" + re.escape(name) + r"(?![\w])"
+                    r"|(?<![\w.])" + re.escape(name) +
                     r"\s*(?:=(?!=)|\+\+|--|\+=|-=|\*=)", project.source))
                 reads = len(re.findall(
                     r"(?<![\w.])" + re.escape(name) + r"(?![\w=])", project.source))
@@ -176,7 +183,11 @@ class EmptyHandler(Rule):
     def run(self, project: Project):
         for path, text in project.dart.items():
             for m in re.finditer(
-                    r"^\s{2}(?:void|bool)\s+(_?\w+)\s*\([^)]*\)\s*\{\s*\}", text, re.M):
+                    # a trailing comment on the same line means somebody has
+                    # already said why it is empty - which is exactly what
+                    # this rule's own advice asks for, so honour it
+                    r"^\s{2}(?:void|bool)\s+(_?\w+)\s*\([^)]*\)\s*\{\s*\}"
+                    r"(?![ 	]*//)", text, re.M):
                 name = m.group(1)
                 wired = len(re.findall(
                     r"[:(]\s*" + re.escape(name) + r"\b", project.source))
