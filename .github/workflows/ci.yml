@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  # Daily, so a rule that quietly stops working is caught within a day rather
+  # than the next time somebody happens to run it.
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+
+      - name: Every rule finds its own fault, and ignores the near-miss
+        run: python -m pytest tests/ -q
+
+      # The fixture is deliberately broken, so a clean run would mean the
+      # rules have stopped working. --fail-on never lets us read the report
+      # without failing the job on findings that are supposed to be there.
+      - name: Report on the fixture
+        run: python -m wobli_doctor.cli examples/fixture --fail-on never
+
+      - name: Each rule states the bug it came from
+        run: python -m wobli_doctor.cli --why

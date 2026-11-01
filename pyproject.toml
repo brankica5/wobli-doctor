@@ -1,0 +1,15 @@
+[project]
+name = "wobli-doctor"
+version = "0.1.0"
+description = "Finds the code that compiles, analyses cleanly, and does nothing."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = ["numpy>=1.24", "soundfile>=0.12"]
+
+[project.scripts]
+wobli-doctor = "wobli_doctor.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

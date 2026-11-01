@@ -1,0 +1,4 @@
+# Only the audio rule needs these. Everything else is standard library, so the
+# tool still runs (and reports that measurement is unavailable) without them.
+numpy>=1.24
+soundfile>=0.12
